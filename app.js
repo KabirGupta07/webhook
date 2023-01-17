@@ -12,8 +12,7 @@ var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 
-app.set('port', (process.env.PORT || 5000));
-
+const PORT  = process.env.PORT || 6000;
 app.use(xhub({ algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
 
@@ -21,11 +20,12 @@ var token = process.env.TOKEN;
 var received_updates = [];
 
 app.get('/', function(req, res) {
+  console.log("Hello");
   console.log(req);
   res.send('<pre>' + JSON.stringify(received_updates, null, 2) + '</pre>');
 });
 
-app.get(['/facebook', '/instagram'], function(req, res) {
+app.get(['/facebook', '/instagram','/whatsapp'], function(req, res) {
   if (
     req.query['hub.mode'] == 'subscribe' &&
     req.query['hub.verify_token'] == token
@@ -59,4 +59,14 @@ app.post('/instagram', function(req, res) {
   res.sendStatus(200);
 });
 
-app.listen();
+app.post('/whatsapp', function(req, res) {
+  console.log('whatsapp request body:');
+  console.log(req.body);
+  // Process the Instagram updates here
+  received_updates.unshift(req.body);
+  res.sendStatus(200);
+});
+
+app.listen(PORT, ()=>{
+  console.log(`Server started at ${process.env.PORT}`);
+});
