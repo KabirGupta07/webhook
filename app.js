@@ -21,11 +21,11 @@ var received_updates = [];
 
 app.get('/', function(req, res) {
   console.log("Hello");
-  console.log(req);
+  console.log(req.body);
   res.send('<pre>' + JSON.stringify(received_updates, null, 2) + '</pre>');
 });
 
-app.get(['/facebook', '/instagram','/whatsapp'], function(req, res) {
+app.get(['/facebook','/instagram','/whatsapp'], function(req, res) {
   if (
     req.query['hub.mode'] == 'subscribe' &&
     req.query['hub.verify_token'] == token
@@ -64,7 +64,12 @@ app.post('/whatsapp', function(req, res) {
   console.log(req.body);
   // Process the Instagram updates here
   received_updates.unshift(req.body);
+
   res.sendStatus(200);
+
+  axios.post("http://3.110.149.13:4600/conversation/chat", {
+    data: req.body
+  });
 });
 
 app.listen(PORT, ()=>{
